@@ -72,7 +72,7 @@ HEAD = "## 用户偏好（默认值，可按「配置」一节改）"
 END = "\n# 第一部分：找片"
 POINTER = (
     "## 用户偏好\n\n"
-    "**以 `references/personal.md` 为准**（那是亮子的定稿，与本文件任何默认值冲突时，personal.md 赢）。"
+    "**以 `references/personal.md` 为准**（那是本机维护者的定稿，与本文件任何默认值冲突时，personal.md 赢）。"
     "动任何交付动作前先读它。\n"
 )
 text = io.open(src, encoding="utf-8").read()
