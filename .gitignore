@@ -1,0 +1,5 @@
+# 流程产物，不入库（含本机绝对路径与内部上下文）
+HANDOVER.md
+REVIEW.md
+__pycache__/
+*.pyc
