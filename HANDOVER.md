@@ -135,8 +135,9 @@ OK
 
 ## 5. commit
 
-- 重构提交：`29dfe69ba1494425564a9d38fee2a8e229774f26`（`29dfe69`）
-- 本交接文件在紧随其后的 `docs: 公开版 HANDOVER` 提交里，所以 `git log` 里 HANDOVER 那条是单独一笔。
+- `29dfe69` `refactor: 公开版拆成骨架 + references/scripts，加一键同步脚本`（重构主体）
+- `0ba9cfe` `docs: 公开版 HANDOVER（…）`（本文件初版）
+- 最新一笔是收尾修复（`sync.sh --help` 少打一行 + 本节更新），hash 见 `git log` 第一条。
 - **未 push**（按约束，push 由主 agent 决定）。
 
 ## 6. sync.sh 用法示例
