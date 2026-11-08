@@ -122,6 +122,79 @@ pip install pillow
 
 ---
 
+## 脚本：`scripts/mf.py`（不装 skill 也能单独用）
+
+`scripts/mf.py` 是**纯标准库单文件**，不依赖 skill、不依赖 Hermes，`python3` 直接跑。两个子命令：`verify`（验夸克分享死活）、`rank`（按画质给候选排序）。
+
+### `verify`：验夸克分享是活 / 死 / 半死
+
+```bash
+python3 scripts/mf.py verify https://pan.quark.cn/s/<hash>
+python3 scripts/mf.py verify <hash1> <hash2> --json   # 多个一起验；结构化输出加 --json
+```
+
+真实输出（一个不存在的分享）：
+
+```text
+HASH           STATUS     SIZE      TITLE                      NOTE
+0123456789abcdef0123456789abcdef dead       -         -                          token 层 code=41006 分享不存在
+
+共 1 条：dead 1
+```
+
+四种状态：`alive` / `dead` / `half_dead`（正片被清理、只剩字幕图片）/ `unknown`（字段拿不到就不猜）。
+
+### `rank`：按画质给候选排序
+
+```bash
+python3 scripts/mf.py rank candidates.json    # 也可以把 JSON 从 stdin 管道进来
+```
+
+`candidates.json` 就是一个数组，每项最少给 `title`，`size` 可选：
+
+```json
+[
+  {"title": "Dune.2021.2160p.UHD.BluRay.REMUX.HDR.HEVC.DTS-HD.MA", "size": "58.02G"},
+  {"title": "Dune.2021.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.HEVC", "size": "17.5G"},
+  {"title": "Dune.2021.1080p.WEBRip.x264", "size": "3.2G"},
+  {"title": "Dune.2021.2160p.UHD.BluRay.BDMV", "size": "90G"}
+]
+```
+
+真实输出：
+
+```text
+#    TIER     SIZE       TAGS         TITLE
+1    Remux    58.0 GB    HDR          Dune.2021.2160p.UHD.BluRay.REMUX.HDR.HEVC.DTS-HD.MA
+2    WEB-DL   17.5 GB    DV/Atmos/HDR Dune.2021.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.HEVC
+3    WEBRip   3.2 GB     -            Dune.2021.1080p.WEBRip.x264
+4    HDTV     1.4 GB     -            Dune.2021.HDTV.x264
+
+不可直看（ISO / BDMV / 蓝光原盘，夸克解析不了）：
+  - Dune.2021.2160p.UHD.BluRay.BDMV
+
+可排 4 条，不可直看 1 条
+```
+
+排序规则：画质档位（Remux > BluRay > WEB-DL > WEBRip > HDTV > 其他）→ 有 DV 优先 → 有 Atmos 优先 → 有 HDR 优先 → 体积大优先。ISO / BDMV 不进主排序，单独列到「不可直看」。
+
+### 跑测试
+
+```bash
+python3 scripts/test_mf.py     # 17 个离线用例，不联网
+```
+
+### 维护：一键同步到本机 skill
+
+仓库自带 `scripts/sync.sh`，把通用文件同步到本机安装的 skill（默认 `~/.hermes/skills/media/movie-finder`），**绝不覆盖 `references/personal.md`**（个人偏好放那一份）：
+
+```bash
+bash scripts/sync.sh --dry-run   # 只看要覆盖哪些文件
+bash scripts/sync.sh             # 真同步：逐文件比 md5，最后跑一次单测
+```
+
+---
+
 ## 它是怎么工作的
 
 ```
@@ -186,7 +259,7 @@ pip install pillow
 
 ## 免责声明
 
-本 skill **只做公开分享链接的检索与整理，不存储、不上传任何文件**。
+本仓库**只做检索与转存工具，不托管、不存储任何资源**：只检索公开分享链接，不存储、不上传任何文件。
 
 所有资源均来自第三方公开分享。使用者应自行确认内容的合法性与版权状态，并仅用于个人学习研究。作者不对第三方链接的可用性、合法性或内容负责。
 
