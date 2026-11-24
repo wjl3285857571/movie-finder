@@ -412,6 +412,23 @@ TIER_RULES = [
 # BluRay（碟源压制）按「碟源优于流媒体」放在 Remux 之后、WEB-DL 之前；2026-11-24 已与 SKILL.md 档位对齐
 TIER_ORDER = {"Remux": 0, "BluRay": 1, "WEB-DL": 2, "WEBRip": 3, "HDTV": 4, "其他": 5}
 
+# 分辨率档（2026-11-24 补）：同杜比档内先比分辨率，再比档位，避免 1080p BluRay 压过 2160p WEB-DL
+RES_RULES = [
+    (0, re.compile(r"(?<![A-Za-z])(2160p|4K|UHD)(?![A-Za-z])", re.I)),
+    (1, re.compile(r"(?<![A-Za-z])1080p(?![A-Za-z])", re.I)),
+    (2, re.compile(r"(?<![A-Za-z])720p(?![A-Za-z])", re.I)),
+    (3, re.compile(r"(?<![A-Za-z])(480p|576p)(?![A-Za-z])", re.I)),
+]
+RES_UNKNOWN = 1  # 没标分辨率的按 1080p 档算，免得「没标就被罚到底」
+
+
+def parse_res_rank(title):
+    """返回分辨率档位：2160p/4K=0、1080p=1、720p=2、480p=3、没标=1。"""
+    for rank, rule in RES_RULES:
+        if rule.search(title):
+            return rank
+    return RES_UNKNOWN
+
 UNPLAYABLE_RE = re.compile(
     r"(?<![A-Za-z])ISO(?![A-Za-z])|(?<![A-Za-z])BDMV(?![A-Za-z])|蓝光原盘", re.I
 )
@@ -475,10 +492,12 @@ def rank_items(items):
         ranked.append(entry)
 
     def sort_key(e):
-        # 杜比优先（2026-11-24 定）：DV+Atmos > DV > 只有 Atmos > 无；同杜比档内再比档位
+        # 杜比优先（2026-11-24 定）：DV+Atmos > DV > 只有 Atmos > 无；同杜比档内先比分辨率、再比档位，
+        # 避免低分辨率 BluRay 压过高分辨率 WEB-DL（跨分辨率不倒挂）
         dolby = 0 if (e["dv"] and e["atmos"]) else (1 if e["dv"] else (2 if e["atmos"] else 3))
         return (
             dolby,
+            parse_res_rank(e["title"]),
             TIER_ORDER.get(e["tier"], 9),
             -1 if e["hdr"] else 0,
             -(e["size"] or 0),

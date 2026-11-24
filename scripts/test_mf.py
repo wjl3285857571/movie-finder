@@ -198,6 +198,41 @@ class Rank(unittest.TestCase):
         self.assertFalse(ranked[1]["atmos"])
         self.assertIn("Atmos", ranked[0]["title"])
 
+    def test_cross_resolution_no_inversion(self):
+        # 2026-11-24 防回归：同为无杜比时，1080p BluRay 不得压过 2160p WEB-DL
+        items = [
+            {"title": "X.2026.1080p.BluRay.x264-GRP", "size": "12G"},
+            {"title": "X.2026.2160p.WEB-DL.H265-GRP", "size": "20G"},
+        ]
+        ranked, _ = mf.rank_items(items)
+        self.assertEqual(ranked[0]["tier"], "WEB-DL")
+        self.assertIn("2160p", ranked[0]["title"])
+
+    def test_same_tier_higher_resolution_first(self):
+        # 同档同杜比：分辨率高的在前，即使体积更小
+        items = [
+            {"title": "X.2026.1080p.BluRay.x264-GRP", "size": "40G"},
+            {"title": "X.2026.2160p.BluRay.x264-GRP", "size": "20G"},
+        ]
+        ranked, _ = mf.rank_items(items)
+        self.assertIn("2160p", ranked[0]["title"])
+
+    def test_dolby_still_beats_resolution(self):
+        # 杜比这一级压过分辨率：1080p 的 DV+Atmos 仍排在 2160p 无杜比之前
+        items = [
+            {"title": "X.2026.2160p.WEB-DL.H265-GRP", "size": "20G"},
+            {"title": "X.2026.1080p.WEB-DL.DV.Atmos-GRP", "size": "8G"},
+        ]
+        ranked, _ = mf.rank_items(items)
+        self.assertTrue(ranked[0]["dv"] and ranked[0]["atmos"])
+
+    def test_parse_res_rank(self):
+        self.assertEqual(mf.parse_res_rank("A.2160p.BluRay"), 0)
+        self.assertEqual(mf.parse_res_rank("A.4K.WEB-DL"), 0)
+        self.assertEqual(mf.parse_res_rank("A.1080p.WEBRip"), 1)
+        self.assertEqual(mf.parse_res_rank("A.720p.HDTV"), 2)
+        self.assertEqual(mf.parse_res_rank("A.高清版 国语中字"), mf.RES_UNKNOWN)
+
     def test_unknown_quality_is_other_and_flagged(self):
         ranked, unplayable = mf.rank_items([{"title": "某某电影 高清版 国语中字", "size": "2G"}])
         self.assertEqual(len(ranked), 1)
