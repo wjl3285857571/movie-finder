@@ -409,7 +409,7 @@ TIER_RULES = [
     ("HDTV", re.compile(r"(?<![A-Za-z])hdtv(?![A-Za-z])|录制|电视录制", re.I)),
 ]
 
-# BluRay 不在默认五档里，按「碟源优于流媒体」放在 Remux 之后、WEB-DL 之前
+# BluRay（碟源压制）按「碟源优于流媒体」放在 Remux 之后、WEB-DL 之前；2026-11-24 已与 SKILL.md 档位对齐
 TIER_ORDER = {"Remux": 0, "BluRay": 1, "WEB-DL": 2, "WEBRip": 3, "HDTV": 4, "其他": 5}
 
 UNPLAYABLE_RE = re.compile(
@@ -475,10 +475,11 @@ def rank_items(items):
         ranked.append(entry)
 
     def sort_key(e):
+        # 杜比优先（2026-11-24 定）：DV+Atmos > DV > 只有 Atmos > 无；同杜比档内再比档位
+        dolby = 0 if (e["dv"] and e["atmos"]) else (1 if e["dv"] else (2 if e["atmos"] else 3))
         return (
+            dolby,
             TIER_ORDER.get(e["tier"], 9),
-            0 if e["dv"] else 1,
-            0 if e["atmos"] else 1,
             -1 if e["hdr"] else 0,
             -(e["size"] or 0),
         )

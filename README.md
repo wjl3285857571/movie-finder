@@ -165,8 +165,8 @@ python3 scripts/mf.py rank candidates.json    # 也可以把 JSON 从 stdin 管�
 
 ```text
 #    TIER     SIZE       TAGS         TITLE
-1    Remux    58.0 GB    HDR          Dune.2021.2160p.UHD.BluRay.REMUX.HDR.HEVC.DTS-HD.MA
-2    WEB-DL   17.5 GB    DV/Atmos/HDR Dune.2021.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.HEVC
+1    WEB-DL   17.5 GB    DV/Atmos/HDR Dune.2021.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.HEVC
+2    Remux    58.0 GB    HDR          Dune.2021.2160p.UHD.BluRay.REMUX.HDR.HEVC.DTS-HD.MA
 3    WEBRip   3.2 GB     -            Dune.2021.1080p.WEBRip.x264
 4    HDTV     1.4 GB     -            Dune.2021.HDTV.x264
 
@@ -176,7 +176,7 @@ python3 scripts/mf.py rank candidates.json    # 也可以把 JSON 从 stdin 管�
 可排 4 条，不可直看 1 条
 ```
 
-排序规则：画质档位（Remux > BluRay > WEB-DL > WEBRip > HDTV > 其他）→ 有 DV 优先 → 有 Atmos 优先 → 有 HDR 优先 → 体积大优先。ISO / BDMV 不进主排序，单独列到「不可直看」。
+排序规则：杜比优先（DV+Atmos > DV > 只有 Atmos > 无）→ 画质档位（Remux > BluRay > WEB-DL > WEBRip > HDTV > 其他）→ 有 HDR 优先 → 体积大优先。ISO / BDMV 不进主排序，单独列到「不可直看」。
 
 ### 跑测试
 
@@ -229,7 +229,7 @@ bash scripts/sync.sh             # 真同步：逐文件比 md5，最后跑一�
 | `preferred_netdisk` | `quark` | 目标网盘，可改 `baidu` / `115` / `xunlei` / `aliyun` |
 | `delivery_dir` | `影视/影视资源` | 转存到网盘哪个目录（需已存在） |
 | `subtitle_dir` | `~/Downloads/` | 字幕下载到本机哪个目录 |
-| `quality_priority` | Remux > WEB-DL > WEBRip > HDTV | 画质排序偏好 |
+| `quality_priority` | Remux > BluRay > WEB-DL > WEBRip > HDTV（同分辨率内；杜比优先） | 画质排序偏好 |
 
 ---
 

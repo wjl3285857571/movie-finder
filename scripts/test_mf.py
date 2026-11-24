@@ -167,12 +167,13 @@ class Rank(unittest.TestCase):
 
     def test_exact_order_and_unplayable(self):
         ranked, unplayable = mf.rank_items(self.FIXTURE)
+        # 杜比优先：DV+Atmos 的 WEB-DL 排在无杜比的 Remux 前面
         self.assertEqual(
             [e["tier"] for e in ranked],
-            ["Remux", "WEB-DL", "WEBRip", "HDTV"],
+            ["WEB-DL", "Remux", "WEBRip", "HDTV"],
         )
         self.assertEqual([e["rank"] for e in ranked], [1, 2, 3, 4])
-        self.assertTrue(ranked[0]["title"].endswith("DTS-HD.MA"))
+        self.assertTrue(ranked[0]["dv"] and ranked[0]["atmos"])
         self.assertEqual(len(unplayable), 1)
         self.assertIn("BDMV", unplayable[0]["title"])
         # 不可直看的条目不进主排序

@@ -63,7 +63,7 @@ hermes skills install quarkclouddrive   # 首次使用扫码授权一次
 | `preferred_netdisk` | `quark` | 目标网盘。改成 `baidu` / `115` / `xunlei` / `aliyun` 就优先筛那家 |
 | `delivery_dir` | `影视/影视资源` | 转存到网盘里的哪个目录（需已存在） |
 | `subtitle_dir` | `~/Downloads/` | 字幕下载到本机哪个目录 |
-| `quality_priority` | Remux > WEB-DL > WEBRip > HDTV | 画质排序偏好 |
+| `quality_priority` | Remux > BluRay > WEB-DL > WEBRip > HDTV（同分辨率内） | 画质排序偏好；杜比优先，跨分辨率先比分辨率，见「用户偏好」 |
 
 改法：直接改下面「用户偏好」一节里对应的值。
 
@@ -84,10 +84,13 @@ hermes skills install quarkclouddrive   # 首次使用扫码授权一次
 - **默认网盘**：`quark`。改这一项即可切换。
 - **画质优先级**：
   1. **Remux**（蓝光原盘无损压回 mkv，可直接在线看）
-  2. **WEB-DL**（DV / HDR10+ 优先，杜比视界 + 杜比全景声）
-  3. **WEBRip**
-  4. **HDTV / 录制**
-  5. 其他
+  2. **BluRay**（碟源压制，非 Remux、非原盘；同分辨率下碟源优于流媒体）
+  3. **WEB-DL**（DV / HDR10+ 优先，杜比视界 + 杜比全景声）
+  4. **WEBRip**
+  5. **HDTV / 录制**
+  6. 其他
+  - **杜比优先**：有杜比视界（DV）的版本排在没有杜比的之前，DV + Atmos 双料最靠前，只有 Atmos 的次之；没有杜比时才往下比。
+  - **同杜比档内再比分辨率和档位**：先比分辨率（2160p > 1080p > 720p），同分辨率内再按上面档位排。跨分辨率不倒挂：低分辨率 BluRay 不得压过高分辨率 WEB-DL（如 1080p BluRay 排在 2160p WEB-DL 之后）。
   - 同资源有杜比选杜比（DV + Atmos > 仅 Atmos）。WEB-DL 里 Atmos 是常态，**Dolby Vision（DV）才是真分级关键**。
   - DV 标签必须先对实碟规格，见下文「画质判断：DV 标签陷阱」。
 - **不可直看**：蓝光原盘 ISO / BDMV 目录（网盘解析不了光盘镜像）。碰到只有 ISO 的，主动找 Remux 替代，或回报无 Remux 由用户决定。
